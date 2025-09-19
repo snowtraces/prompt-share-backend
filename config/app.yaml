@@ -1,0 +1,14 @@
+server:
+  addr: ":8080"
+
+jwt:
+  secret: "replace-with-a-secure-secret"
+  expire_hours: 72
+
+database:
+  driver: sqlite
+  path: "data/prompt.db"
+
+storage:
+  local:
+    base_path: "./data/files"

@@ -1,0 +1,347 @@
+basePath: /api
+definitions:
+  model.Comment:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      prompt_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.File:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+      size:
+        type: integer
+      type:
+        type: string
+      uploader_id:
+        type: integer
+    type: object
+  model.Prompt:
+    properties:
+      author_name:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      fav_count:
+        type: integer
+      id:
+        type: integer
+      like_count:
+        type: integer
+      tags:
+        description: comma separated
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      role:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Prompt Share 后端 API 文档
+  title: Prompt Share API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: credentials
+        in: body
+        name: cred
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register
+      tags:
+      - auth
+  /files/download/{id}:
+    get:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.File'
+      summary: upload file
+      tags:
+      - files
+  /files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.File'
+      summary: upload file
+      tags:
+      - files
+  /prompts:
+    get:
+      parameters:
+      - description: query
+        in: query
+        name: q
+        type: string
+      - description: tag
+        in: query
+        name: tag
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: list prompts
+      tags:
+      - prompts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: prompt
+        in: body
+        name: prompt
+        required: true
+        schema:
+          $ref: '#/definitions/model.Prompt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Prompt'
+      summary: create prompt
+      tags:
+      - prompts
+  /prompts/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: delete prompt
+      tags:
+      - prompts
+    get:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Prompt'
+      summary: get prompt
+      tags:
+      - prompts
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: prompt
+        in: body
+        name: prompt
+        required: true
+        schema:
+          $ref: '#/definitions/model.Prompt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Prompt'
+      summary: update prompt
+      tags:
+      - prompts
+  /prompts/{id}/comments:
+    get:
+      parameters:
+      - description: prompt id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Comment'
+            type: array
+      summary: list comments
+      tags:
+      - comment
+    post:
+      parameters:
+      - description: prompt id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Comment'
+      summary: create comment
+      tags:
+      - comment
+  /prompts/{id}/favorite:
+    post:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: favorite prompt
+      tags:
+      - prompts
+  /prompts/{id}/like:
+    post:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: like prompt
+      tags:
+      - prompts
+swagger: "2.0"
