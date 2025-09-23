@@ -30,6 +30,38 @@ func GetPrompts(c *gin.Context) {
 		utils.Error(c, 1, err.Error())
 		return
 	}
+
+	if len(list) > 0 {
+		// 1. 查询所有id
+		ids := make([]uint, len(list))
+		for i, v := range list {
+			ids[i] = v.ID
+		}
+
+		// 2. 批量查询图片
+		images, err := service.GetPromptImgByPromptIds(ids)
+		if err != nil {
+			utils.Error(c, 1, err.Error())
+			return
+		}
+
+		// 3. 绑定图片
+		if len(images) > 0 {
+			// 创建以PromptID为键的图片映射
+			imageMap := make(map[uint][]model.PromptImg)
+			for _, img := range images {
+				imageMap[img.PromptID] = append(imageMap[img.PromptID], img)
+			}
+
+			// 单次遍历将图片绑定到对应的prompt
+			for i := range list {
+				if promptImages, exists := imageMap[list[i].ID]; exists {
+					list[i].Images = promptImages
+				}
+			}
+		}
+	}
+
 	utils.Success(c, gin.H{"list": list, "total": total})
 }
 

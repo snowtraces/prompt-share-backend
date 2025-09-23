@@ -31,6 +31,18 @@ func GetPromptImgByID(id uint) ([]model.PromptImg, error) {
 	return list, nil
 }
 
+func GetPromptImgByPromptIds(ids []uint) ([]model.PromptImg, error) {
+	var list []model.PromptImg
+	db := database.DB.Model(&model.PromptImg{})
+
+	db = db.Where("prompt_id in ?", ids)
+	if err := db.Find(&list).Error; err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
 func QueryPrompts(q string, tag string, page, pageSize int) ([]model.Prompt, int64, error) {
 	var list []model.Prompt
 	var total int64
