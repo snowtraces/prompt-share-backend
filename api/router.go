@@ -29,7 +29,10 @@ func InitRouter() *gin.Engine {
 		public.POST("/auth/login", Login)
 		public.GET("/prompts", GetPrompts)
 		public.GET("/prompts/:id", GetPrompt)
+		public.GET("/prompts/:id/images", GetImage)
 		public.GET("/files/:id", DownloadFile)
+		public.GET("/files/preview/:id", PreviewFile)
+		public.GET("/files", ListFiles)
 		public.GET("/prompts/:id/comments", ListComments)
 	}
 
@@ -39,6 +42,7 @@ func InitRouter() *gin.Engine {
 	{
 		protected.POST("/prompts", CreatePrompt)
 		protected.PUT("/prompts/:id", UpdatePrompt)
+		protected.POST("/prompts/:id/images", SavePromptImages)
 		protected.DELETE("/prompts/:id", DeletePrompt)
 		protected.POST("/prompts/:id/like", LikePrompt)
 		protected.POST("/prompts/:id/fav", FavoritePrompt)

@@ -79,6 +79,17 @@ func GetPrompt(c *gin.Context) {
 	utils.Success(c, p)
 }
 
+func GetImage(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.ParseUint(idStr, 10, 64)
+	p, err := service.GetPromptImgByID(uint(id))
+	if err != nil {
+		utils.Error(c, 1, "not found")
+		return
+	}
+	utils.Success(c, p)
+}
+
 // UpdatePrompt 更新
 // @Summary update prompt
 // @Tags prompts
@@ -96,6 +107,35 @@ func UpdatePrompt(c *gin.Context) {
 		return
 	}
 	in.ID = uint(id)
+	if err := database.DB.Save(&in).Error; err != nil {
+		utils.Error(c, 1, err.Error())
+		return
+	}
+	utils.Success(c, in)
+}
+
+// SavePromptImages 保存提示图片
+// @Summary 保存提示图片
+// @Description 保存提示图片
+// @Tags prompts
+// @Accept json
+// @Produce json
+// @Param id path int true "提示ID"
+func SavePromptImages(c *gin.Context) {
+	var in []model.PromptImg
+	if err := c.ShouldBindJSON(&in); err != nil {
+		utils.Error(c, 1, err.Error())
+		return
+	}
+
+	// 1. 先根据prompt_id删除已有的数据
+	promptID := in[0].PromptID
+	if err := service.DeletePromptImages(promptID); err != nil {
+		utils.Error(c, 1, err.Error())
+		return
+	}
+
+	// 2. 保存新的数据
 	if err := database.DB.Save(&in).Error; err != nil {
 		utils.Error(c, 1, err.Error())
 		return

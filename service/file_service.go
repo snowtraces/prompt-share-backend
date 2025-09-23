@@ -16,7 +16,8 @@ var Store storage.Storage
 
 func InitStorage() {
 	base := config.Cfg.Storage.Local.BasePath
-	Store = storage.NewLocalStorage(base)
+	//Store = storage.NewLocalStorage(base)
+	Store = storage.NewSnowStorage(base)
 	// ensure data dir
 	_ = os.MkdirAll(base, 0755)
 }
@@ -49,4 +50,25 @@ func SaveUploadedFile(fh *multipart.FileHeader, prefix string, uploaderID uint) 
 
 func GetFileReader(path string) (io.ReadCloser, error) {
 	return Store.Open(path)
+}
+
+func QueryFiles(q string, tag string, page int, pageSize int) ([]model.File, int64, error) {
+	var list []model.File
+	var total int64
+	db := database.DB.Model(&model.File{})
+
+	if q != "" {
+		db = db.Where("name LIKE ?", "%"+q+"%")
+	}
+	if tag != "" {
+		db = db.Where("tags LIKE ?", "%"+tag+"%")
+	}
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	offset := (page - 1) * pageSize
+	if err := db.Order("created_at desc").Limit(pageSize).Offset(offset).Find(&list).Error; err != nil {
+		return nil, 0, err
+	}
+	return list, total, nil
 }

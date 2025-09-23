@@ -20,6 +20,17 @@ func GetPromptByID(id uint) (*model.Prompt, error) {
 	return &p, nil
 }
 
+func GetPromptImgByID(id uint) ([]model.PromptImg, error) {
+	var list []model.PromptImg
+	db := database.DB.Model(&model.PromptImg{})
+	db = db.Where("prompt_id = ?", id)
+	if err := db.Find(&list).Error; err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
 func QueryPrompts(q string, tag string, page, pageSize int) ([]model.Prompt, int64, error) {
 	var list []model.Prompt
 	var total int64
@@ -54,4 +65,12 @@ func ParseTags(tags []string) string {
 		tags[i] = strings.TrimSpace(tags[i])
 	}
 	return strings.Join(tags, ",")
+}
+
+func AddPromptImg(m *model.PromptImg) error {
+	return database.DB.Create(m).Error
+}
+
+func DeletePromptImages(id uint) error {
+	return database.DB.Where("prompt_id = ?", id).Delete(&model.PromptImg{}).Error
 }

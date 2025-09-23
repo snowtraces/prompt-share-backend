@@ -28,7 +28,13 @@ func Init() {
 	DB = db
 
 	// Auto migrate
-	if err := DB.AutoMigrate(&model.User{}, &model.Prompt{}, &model.Comment{}, &model.File{}); err != nil {
+	if err := DB.AutoMigrate(
+		&model.User{},
+		&model.Prompt{},
+		&model.Comment{},
+		&model.File{},
+		&model.PromptImg{},
+	); err != nil {
 		log.Fatal("AutoMigrate failed:", err)
 	}
 }
