@@ -9,6 +9,7 @@ import (
 	"prompt-share-backend/database"
 	"prompt-share-backend/model"
 	"prompt-share-backend/storage"
+	"prompt-share-backend/utils"
 	"time"
 )
 
@@ -35,17 +36,58 @@ func SaveUploadedFile(fh *multipart.FileHeader, prefix string, uploaderID uint) 
 		return nil, err
 	}
 
+	// 2. 生成缩略图
+	// 判断是否为图片
+	contentType := fh.Header.Get("Content-Type")
+	var thumbnail string
+	if utils.IsImage(contentType) {
+		reader, err := GetFileReader(path)
+		if err != nil {
+			return nil, err
+		}
+		rawImageData, err := io.ReadAll(reader)
+		if err != nil {
+			return nil, err
+		}
+		thumbnail, err = utils.GenerateThumbnail(rawImageData, 360, 90)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	fi := &model.File{
 		UploaderID: uploaderID,
 		Path:       path,
 		Name:       fh.Filename,
 		Size:       fh.Size,
-		Type:       fh.Header.Get("Content-Type"),
+		Type:       contentType,
+		Thumbnail:  thumbnail,
 	}
 	if err := database.DB.Create(fi).Error; err != nil {
 		return nil, err
 	}
 	return fi, nil
+}
+
+// 生成缩略图
+func GenThumbnail(f *model.File) (string, error) {
+	reader, err := GetFileReader(f.Path)
+	if err != nil {
+		return "", err
+	}
+	rawImageData, err := io.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+	thumbnail, err := utils.GenerateThumbnail(rawImageData, 360, 90)
+	if err != nil {
+		return "", err
+	}
+	f.Thumbnail = thumbnail
+	if err := database.DB.Updates(f).Error; err != nil {
+		return "", err
+	}
+	return thumbnail, nil
 }
 
 func GetFileReader(path string) (io.ReadCloser, error) {

@@ -32,6 +32,7 @@ func InitRouter() *gin.Engine {
 		public.GET("/prompts/:id/images", GetImage)
 		public.GET("/files/:id", DownloadFile)
 		public.GET("/files/preview/:id", PreviewFile)
+		public.GET("/files/thumbnail/:id", Thumbnail)
 		public.GET("/files", ListFiles)
 		public.GET("/prompts/:id/comments", ListComments)
 	}

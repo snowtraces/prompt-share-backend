@@ -35,6 +35,9 @@ func GetPromptImgByPromptIds(ids []uint) ([]model.PromptImg, error) {
 	var list []model.PromptImg
 	db := database.DB.Model(&model.PromptImg{})
 
+	// 只查询指定的字段
+	db = db.Select("id", "prompt_id", "file_id", "file_url", "tags")
+
 	db = db.Where("prompt_id in ?", ids)
 	if err := db.Find(&list).Error; err != nil {
 		return nil, err

@@ -10,4 +10,5 @@ type File struct {
 	Size       int64     `json:"size"`
 	Type       string    `gorm:"size:100" json:"type"`
 	CreatedAt  time.Time `json:"created_at"`
+	Thumbnail  string    `gorm:"blob" json:"thumbnail"`
 }
