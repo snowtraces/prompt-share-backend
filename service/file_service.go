@@ -114,3 +114,25 @@ func QueryFiles(q string, tag string, page int, pageSize int) ([]model.File, int
 	}
 	return list, total, nil
 }
+
+// DeleteFile 删除文件
+func DeleteFile(id uint) error {
+	var f model.File
+	if err := database.DB.First(&f, id).Error; err != nil {
+		return err
+	}
+
+	// 删除文件存储中的实际文件
+	if err := Store.Delete(f.Path); err != nil {
+		return err
+	}
+
+	// 从数据库中删除记录
+	return database.DB.Delete(&f).Error
+}
+
+func IsFileUsed(id uint) bool {
+	var count int64
+	database.DB.Model(&model.PromptImg{}).Where("file_id = ?", id).Count(&count)
+	return count > 0
+}

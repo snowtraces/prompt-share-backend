@@ -162,3 +162,32 @@ func ListFiles(c *gin.Context) {
 	}
 	utils.Success(c, gin.H{"list": list, "total": total})
 }
+
+// DeleteFile 删除文件
+// @Summary 删除文件
+// @Tags files
+// @Param id path int true "文件ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /files/{id} [delete]
+func DeleteFile(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		utils.Error(c, 1, "invalid file id")
+		return
+	}
+
+	// 文件是否使用验证
+	if service.IsFileUsed(uint(id)) {
+		utils.Error(c, 1, "file is used")
+		return
+	}
+
+	err = service.DeleteFile(uint(id))
+	if err != nil {
+		utils.Error(c, 1, err.Error())
+		return
+	}
+
+	utils.Success(c, gin.H{"message": "file deleted"})
+}

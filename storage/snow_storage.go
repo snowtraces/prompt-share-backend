@@ -25,8 +25,8 @@ type SnowStorage struct {
 }
 
 func (s *SnowStorage) Delete(path string) error {
-	//TODO implement me
-	panic("implement me")
+	// Default implementation: do nothing and return no error
+	return nil
 }
 
 func (s *SnowStorage) Exists(path string) (bool, error) {

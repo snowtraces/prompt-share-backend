@@ -49,6 +49,7 @@ func InitRouter() *gin.Engine {
 		protected.POST("/prompts/:id/fav", FavoritePrompt)
 		protected.POST("/prompts/:id/comments", CreateComment)
 		protected.POST("/files/upload", UploadFile)
+		protected.DELETE("/files/:id", DeleteFile)
 	}
 	// init storage
 	service.InitStorage()
