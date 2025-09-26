@@ -39,7 +39,7 @@ func InitRouter() *gin.Engine {
 
 	// protected
 	protected := r.Group("/api")
-	//protected.Use(middleware.JWTAuth())
+	protected.Use(middleware.JWTAuth())
 	{
 		protected.POST("/prompts", CreatePrompt)
 		protected.PUT("/prompts/:id", UpdatePrompt)
