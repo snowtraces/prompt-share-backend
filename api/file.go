@@ -88,6 +88,17 @@ func PreviewFile(c *gin.Context) {
 		return
 	}
 
+	// 添加缓存控制头
+	c.Header("ETag", fmt.Sprintf("\"%s-%d\"", f.Path, f.CreatedAt.Unix()))
+
+	// 检查是否有 If-None-Match 头
+	if match := c.GetHeader("If-None-Match"); match != "" {
+		if match == fmt.Sprintf("\"%s-%d\"", f.Path, f.CreatedAt.Unix()) {
+			c.Status(304) // Not Modified
+			return
+		}
+	}
+
 	c.Header("Cache-Control", "public, max-age=31536000, immutable, s-maxage=31536000")
 	c.Header("Expires", time.Now().AddDate(1, 0, 0).UTC().Format(http.TimeFormat))
 
