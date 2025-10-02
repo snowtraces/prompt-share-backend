@@ -8,22 +8,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24.5'
+      - name: Build in Debian 10 (glibc 2.28)
+        run: |
+          docker run --rm -v $PWD:/app -w /app golang:1.24-buster \
+          bash -c "apt-get update && apt-get install -y gcc libsqlite3-dev zip && \
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o prompt-share-backend cmd/main.go && \
+          zip prompt-share-backend.zip prompt-share-backend"
 
-      - name: Build
-        run: GOOS=linux GOARCH=amd64 go build -o prompt-share-backend cmd/main.go
-
-      - name: Package binary as zip
-        run: zip prompt-share-backend.zip prompt-share-backend
-
-      - name: Upload build artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: prompt-share-backend
