@@ -1,6 +1,3 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
 name: Go
 
 on:
@@ -10,17 +7,24 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.24.5'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.5'
 
-    - name: Build
-      run: GOOS=linux GOARCH=amd64 go build -o prompt-share-backend cmd/main.go
+      - name: Build
+        run: GOOS=linux GOARCH=amd64 go build -o prompt-share-backend cmd/main.go
 
+      - name: Package binary as zip
+        run: zip prompt-share-backend.zip prompt-share-backend
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-share-backend
+          path: prompt-share-backend.zip
