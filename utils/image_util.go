@@ -14,8 +14,9 @@ import (
 // GenerateThumbnail 生成缩略图并返回 Base64 字符串
 // data: 原始图片字节
 // maxSize: 最大边长度
+// maxWidthFlag: 是否强制以宽度为最大边
 // quality: JPEG 压缩质量 (1-100)
-func GenerateThumbnail(data []byte, maxSize int, quality int) (string, error) {
+func GenerateThumbnail(data []byte, maxSize int, maxWidthFlag bool, quality int) (string, error) {
 	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return "", err
@@ -26,7 +27,7 @@ func GenerateThumbnail(data []byte, maxSize int, quality int) (string, error) {
 	width := bounds.Dx()
 	height := bounds.Dy()
 
-	if width > height {
+	if width > height || maxWidthFlag {
 		if width > maxSize {
 			height = height * maxSize / width
 			width = maxSize

@@ -49,7 +49,7 @@ func SaveUploadedFile(fh *multipart.FileHeader, prefix string, uploaderID uint) 
 		if err != nil {
 			return nil, err
 		}
-		thumbnail, err = utils.GenerateThumbnail(rawImageData, 380, 90)
+		thumbnail, err = utils.GenerateThumbnail(rawImageData, 380, true, 90)
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +79,7 @@ func GenThumbnail(f *model.File) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	thumbnail, err := utils.GenerateThumbnail(rawImageData, 360, 90)
+	thumbnail, err := utils.GenerateThumbnail(rawImageData, 360, true, 90)
 	if err != nil {
 		return "", err
 	}
