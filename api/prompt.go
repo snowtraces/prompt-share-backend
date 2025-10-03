@@ -84,7 +84,13 @@ func CreatePrompt(c *gin.Context) {
 		p.UserID = uidRaw.(uint)
 	}
 	if p.AuthorName == "" {
-		p.AuthorName = "anonymous"
+		// 通过UserId查询用户名
+		if p.UserID != 0 {
+			var user model.User
+			if err := database.DB.Select("username").First(&user, p.UserID).Error; err == nil {
+				p.AuthorName = user.Username
+			}
+		}
 	}
 	if err := service.CreatePrompt(&p); err != nil {
 		utils.Error(c, 1, err.Error())
