@@ -1,0 +1,26 @@
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build in Debian 10 (glibc 2.28)
+        run: |
+          docker run --rm -v $PWD:/app -w /app golang:1.24-bullseye \
+          bash -c "apt-get update && apt-get install -y gcc libsqlite3-dev zip && \
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o prompt-share-backend cmd/main.go && \
+          zip prompt-share-backend.zip prompt-share-backend"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-share-backend
+          path: prompt-share-backend.zip
