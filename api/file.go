@@ -54,7 +54,7 @@ func DownloadFile(c *gin.Context) {
 	id, _ := strconv.ParseUint(idStr, 10, 64)
 	var f model.File
 	if err := database.DB.First(&f, uint(id)).Error; err != nil {
-		utils.Error(c, 1, "file not found")
+		utils.Error(c, 1, "file_not_found")
 		return
 	}
 	rc, err := service.GetFileReader(f.Path)
@@ -84,7 +84,7 @@ func PreviewFile(c *gin.Context) {
 	var f model.File
 
 	if err := database.DB.First(&f, uint(id)).Error; err != nil {
-		utils.Error(c, 1, "file not found")
+		utils.Error(c, 1, "file_not_found")
 		return
 	}
 
@@ -137,7 +137,7 @@ func Thumbnail(c *gin.Context) {
 	if thumbnail == "" {
 		genThumbnail, err := service.GenThumbnail(&f)
 		if err != nil {
-			utils.Error(c, 1, "generate thumbnail failed")
+			utils.Error(c, 1, "generate_thumbnail_failed")
 			return
 		}
 		thumbnail = genThumbnail
@@ -147,7 +147,7 @@ func Thumbnail(c *gin.Context) {
 	// 解码 base64 字符串
 	data, err := base64.StdEncoding.DecodeString(thumbnail)
 	if err != nil {
-		utils.Error(c, 1, "decode thumbnail failed")
+		utils.Error(c, 1, "decode_thumbnail_failed")
 		return
 	}
 
@@ -184,13 +184,13 @@ func DeleteFile(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		utils.Error(c, 1, "invalid file id")
+		utils.Error(c, 1, "invalid_file_id")
 		return
 	}
 
 	// 文件是否使用验证
 	if service.IsFileUsed(uint(id)) {
-		utils.Error(c, 1, "file is used")
+		utils.Error(c, 1, "file_is_used")
 		return
 	}
 

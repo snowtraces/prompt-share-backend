@@ -56,7 +56,7 @@ func Login(c *gin.Context) {
 	}
 	token, user, err := service.Login(in.Username, in.Password)
 	if err != nil {
-		utils.Error(c, 1, "username or password invalid")
+		utils.Error(c, 1, "username_or_password_invalid")
 		return
 	}
 	// hide password

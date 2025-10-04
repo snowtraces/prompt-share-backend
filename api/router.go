@@ -17,6 +17,7 @@ func InitRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.Cors())
 	r.Use(middleware.Logger())
+	r.Use(middleware.Language())
 
 	// health
 	r.GET("/ping", func(c *gin.Context) { c.JSON(200, gin.H{"message": "pong"}) })
