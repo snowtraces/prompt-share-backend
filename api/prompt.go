@@ -1,10 +1,14 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"prompt-share-backend/database"
 	"prompt-share-backend/model"
 	"prompt-share-backend/service"
 	"prompt-share-backend/utils"
+	"regexp"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -145,6 +149,72 @@ func UpdatePrompt(c *gin.Context) {
 		return
 	}
 	in.ID = uint(id)
+
+	// 日志
+	bs, _ := json.Marshal(in)
+	fmt.Println(string(bs))
+
+	// 1. 查询数据
+	var existing model.Prompt
+	if err := database.DB.First(&existing, in.ID).Error; err != nil {
+		utils.Error(c, 1, "not found")
+		return
+	}
+
+	// 2. 判断语言类型
+	language_code := existing.LanguageCode
+	emptyLanguageCode := language_code == ""
+	if emptyLanguageCode {
+		inTitle := in.Title
+		engRegexp := regexp.MustCompile(`[\w\s]{5,+}`)
+		isEng := engRegexp.MatchString(inTitle)
+		if isEng {
+			language_code = "en"
+		} else {
+			language_code = "zh"
+		}
+		in.LanguageCode = language_code
+	}
+
+	// 3. 翻译
+	if language_code == "en" {
+		// 英文翻译为中文
+		in.TitleEn = in.Title
+		in.ContentEn = in.Content
+		in.TagsEn = in.Tags
+		var buf1, buf2, buf3 bytes.Buffer
+		err := utils.TranslateText(&buf1, "zh", "", in.Title)
+		if err == nil {
+			in.Title = buf1.String()
+		}
+		err = utils.TranslateText(&buf2, "zh", "", in.Content)
+		if err == nil {
+			in.Content = buf2.String()
+		}
+		err = utils.TranslateText(&buf3, "zh", "", in.Tags)
+		if err == nil {
+			in.Tags = buf3.String()
+		}
+	} else {
+		// 中文翻译为英文
+		var buf1, buf2, buf3 bytes.Buffer
+		err := utils.TranslateText(&buf1, "en", "", in.Title)
+		if err == nil {
+			in.TitleEn = buf1.String()
+		}
+		err = utils.TranslateText(&buf2, "en", "", in.Content)
+		if err == nil {
+			in.ContentEn = buf2.String()
+		}
+		err = utils.TranslateText(&buf3, "en", "", in.Tags)
+		if err == nil {
+			in.TagsEn = buf3.String()
+		}
+	}
+	// json格式打印
+	bs, _ = json.Marshal(in)
+	fmt.Println(string(bs))
+
 	if err := database.DB.Save(&in).Error; err != nil {
 		utils.Error(c, 1, err.Error())
 		return
